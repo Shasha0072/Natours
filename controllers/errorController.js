@@ -45,6 +45,12 @@ const handleValidationErrorDB = (err) => {
   return new AppError(message, 400); // 400 stands for bad request
 };
 
+const handleJSTError = (err) =>
+  new AppError('Invalid Token. Please log in again', 401);
+
+const handleJWTExpiredError = (err) =>
+  new AppError('Your token has expired, Please login again', 401);
+
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
@@ -58,7 +64,8 @@ module.exports = (err, req, res, next) => {
     if (error.name === 'CastError') error = handleCastErrorDB(err);
     if (error.code === 11000) error = handleDuplicateFieldsDB(err);
     if (error.name === 'ValidationError') error = handleValidationErrorDB(err);
-
+    if (error.name === 'JsonWebTokenError') error = handleJSTError(error);
+    if (error.name === 'TokenExpiredError') error = handleJWTExpiredError(err);
     sendErrorProd(error, res);
   }
 };
