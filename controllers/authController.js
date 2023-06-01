@@ -61,11 +61,6 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
   createSendToken(user, 200, res);
-  // const token = signToken(user._id);
-  // res.status(200).json({
-  //   status: 'success',
-  //   token,
-  // });
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -180,11 +175,6 @@ exports.resetPassword = async (req, res, next) => {
   await user.save();
   // 4. log the user send jwt token
   createSendToken(user, 200, res);
-  // const token = signToken(user._id);
-  // res.status(200).json({
-  //   status: 'success',
-  //   token,
-  // });
 };
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -208,10 +198,4 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await currentUser.save();
   // 4. Log user in , send JWT
   createSendToken(currentUser, 200, res);
-  // const token = signToken(currentUser._id);
-  // res.status(200).json({
-  //   status: 'success',
-  //   token,
-  //   message: 'Password updated successfully.',
-  // });
 });
