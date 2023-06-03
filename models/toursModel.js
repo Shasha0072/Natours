@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const slugify = require('slugify');
 
+// const User = require('./userModel');
+
 const toursSchema = new mongoose.Schema(
   {
     name: {
@@ -49,6 +51,31 @@ const toursSchema = new mongoose.Schema(
     createdAt: { type: Date, default: Date.now(), select: false },
     startDates: [Date],
     secretTour: { type: Boolean, default: false },
+    startLocation: {
+      // GeoJSON
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   },
   {
     toJSON: { virtuals: true },
@@ -60,13 +87,19 @@ toursSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
-//DOCUMNET MIDDLEWARE AND IT RUNS BEFORE .save() AND .create()
+//DOCUMENT MIDDLEWARE AND IT RUNS BEFORE .save() AND .create()
 toursSchema.pre('save', function (next) {
   console.log('pre function runnings');
   console.log(this);
   this.slug = slugify(this.name, { lower: true });
   next();
 });
+
+// toursSchema.pre('save', async function (next) {
+//   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromises);
+//   next();
+// });
 
 // toursSchema.pre('save', (next) => {
 //   console.log('will save the document');
@@ -86,6 +119,14 @@ toursSchema.pre('save', function (next) {
 toursSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
   this.start = Date.now();
+  next();
+});
+
+toursSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-_v -passwordChangedAt',
+  });
   next();
 });
 
