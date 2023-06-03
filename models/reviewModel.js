@@ -7,8 +7,16 @@ const reviewSchema = new mongoose.Schema({
   },
   rating: { type: Number, min: 1, max: 5 },
   createdAt: { type: Date, default: Date.now },
-  tourId: { type: mongoose.Schema.ObjectId },
-  userId: { type: mongoose.Schema.ObjectId },
+  tourId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Tour',
+    required: [true, 'Review must belong to a tour'],
+  },
+  userId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    required: [true, 'Review must belong to a user'],
+  },
 });
 
 const Review = mongoose.model('Review', reviewSchema);
